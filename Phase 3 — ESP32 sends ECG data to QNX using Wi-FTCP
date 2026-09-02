@@ -1,0 +1,65 @@
+Great — 1 = QNX is already booting. Let's start Phase 3 with the QNX TCP server.
+
+On the Raspberry Pi running QNX, first find its IP address:
+
+ifconfig
+
+Look for something like:
+
+inet 192.168.1.50
+
+Send me that IP address (just the local IP, e.g. 192.168.1.50). Then I'll give you the QNX TCP server code and the exact ESP32 TCP-client code.
+
+what are the process
+
+For Phase 3, the process is to connect your working ESP32 patient monitor to the QNX Raspberry Pi over Wi-Fi/TCP.
+
+Overall project process
+PHASE 1
+ESP32 + TFT
+   ↓
+TFT working                         ✅
+
+PHASE 2
+AD8232 + ESP32
+   ↓
+ECG ADC reading + electrode status  ✅
+
+PHASE 3
+ESP32
+   ↓
+Wi-Fi
+   ↓
+TCP
+   ↓
+QNX Raspberry Pi
+   ↓
+Receive ECG data                    ← NOW
+
+PHASE 4
+QNX
+   ↓
+Vital Processing Task
+   ↓
+Calculate/check patient vitals
+
+PHASE 5
+QNX
+   ↓
+Message Queue
+   ↓
+Alarm Task (HIGHEST PRIORITY)
+   ↓
+CRITICAL / HIGH / NORMAL alarms
+
+PHASE 6
+Multiple patients
+   ↓
+CPU + network overload
+   ↓
+Measure alarm latency/deadlines
+
+PHASE 7
+Central CLI dashboard
+   ↓
+Final demonstration
