@@ -1,0 +1,73 @@
+Phase 1 —
+ESP32 + 1.8" TFT
+
+First, we will make the TFT display work independently. No AD8232 and no QNX yet.
+
+If your TFT is the common ST7735 SPI 1.8-inch display, use:
+
+TFT	ESP32
+VCC	3.3V
+GND	GND
+SCK / SCL	GPIO 18
+SDA / MOSI	GPIO 23
+CS	GPIO 5
+DC / A0	GPIO 2
+RST / RES	GPIO 4
+LED / BL	3.3V
+Arduino IDE
+
+Install these libraries:
+
+Adafruit GFX Library
+Adafruit ST7735 and ST7789 Library
+}
+Then upload this test:
+
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7735.h>
+#include <SPI.h>
+
+#define TFT_CS   5
+#define TFT_DC   2
+#define TFT_RST  4
+
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+
+void setup() {
+  Serial.begin(115200);
+
+  tft.initR(INITR_BLACKTAB);
+  tft.setRotation(1);
+
+  tft.fillScreen(ST77XX_BLACK);
+
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setTextSize(2);
+  tft.setCursor(10, 15);
+  tft.println("PATIENT");
+
+  tft.setCursor(10, 40);
+  tft.println("MONITOR");
+
+  tft.setTextSize(1);
+  tft.setCursor(10, 80);
+  tft.println("ESP32 SYSTEM");
+
+  tft.setCursor(10, 100);
+  tft.println("TFT TEST: OK");
+}
+
+void loop() {
+}
+{Expected display
+┌──────────────────────────┐
+│                          │
+│  PATIENT                 │
+│  MONITOR                 │
+│                          │
+│  ESP32 SYSTEM            │
+│  TFT TEST: OK            │
+│                          │
+└──────────────────────────┘
+
+Important: before powering it, if your TFT's pin labels are different from the table above, upload a clear photo of the TFT front and back. I can verify the exact connections.
