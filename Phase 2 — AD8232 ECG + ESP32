@@ -1,0 +1,112 @@
+Phase 2 — AD8232 ECG + ESP32
+
+Now that the TFT is working, we can add the AD8232.
+
+1. Connect AD8232 to ESP32
+AD8232	ESP32
+3.3V	3.3V
+GND	GND
+OUTPUT	GPIO34
+LO+	GPIO32
+LO−	GPIO33
+
+Keep the TFT connected as it is.
+
+AD8232 OUTPUT ────── GPIO34
+AD8232 LO+    ────── GPIO32
+AD8232 LO−    ────── GPIO33
+AD8232 3.3V   ────── 3.3V
+AD8232 GND    ────── GND
+
+No MCP3008 is needed. The ESP32 ADC reads the AD8232 output.
+
+2. Phase 2 test program
+
+This first test will display the ECG ADC value and electrode status on the TFT.
+
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7735.h>
+#include <SPI.h>
+
+#define TFT_CS   5
+#define TFT_DC   2
+#define TFT_RST  4
+
+#define ECG_PIN  34
+#define LO_PLUS  32
+#define LO_MINUS 33
+
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(LO_PLUS, INPUT);
+  pinMode(LO_MINUS, INPUT);
+
+  tft.initR(INITR_BLACKTAB);
+  tft.setRotation(1);
+  tft.fillScreen(ST77XX_BLACK);
+
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setTextSize(2);
+  tft.setCursor(5, 10);
+  tft.println("PATIENT");
+
+  tft.setCursor(5, 35);
+  tft.println("MONITOR");
+
+  analogReadResolution(12);
+}
+
+void loop() {
+  int ecgValue = analogRead(ECG_PIN);
+
+  bool leadOff = digitalRead(LO_PLUS) || digitalRead(LO_MINUS);
+
+  Serial.print("ECG: ");
+  Serial.print(ecgValue);
+  Serial.print("  Status: ");
+  Serial.println(leadOff ? "LEAD OFF" : "CONNECTED");
+
+  tft.fillRect(0, 70, 160, 70, ST77XX_BLACK);
+
+  tft.setTextSize(1);
+  tft.setCursor(5, 75);
+  tft.setTextColor(ST77XX_WHITE);
+  tft.print("ECG ADC: ");
+  tft.println(ecgValue);
+
+  tft.setCursor(5, 95);
+
+  if (leadOff) {
+    tft.setTextColor(ST77XX_RED);
+    tft.println("ELECTRODES OFF");
+  } else {
+    tft.setTextColor(ST77XX_GREEN);
+    tft.println("ECG CONNECTED");
+  }
+
+  delay(100);
+}
+3. Expected result
+
+With electrodes connected:
+
+PATIENT
+MONITOR
+
+ECG ADC: 1840
+ECG CONNECTED
+
+With electrodes disconnected:
+
+PATIENT
+MONITOR
+
+ECG ADC: ...
+ELECTRODES OFF
+
+For this phase, don't worry about calculating BPM yet. First confirm that the ADC value changes and the lead-off detection works.
+
+Once this works, Phase 3 will be ECG waveform + BPM on the TFT.
